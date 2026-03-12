@@ -1,291 +1,201 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Rifa - Cesta de Páscoa</title>
+
 <style>
+
 body{
-  font-family: Arial, sans-serif;
-  background:#f7f7f7;
-  text-align:center;
-  margin:0;
-  padding:20px;
+font-family: Arial;
+background:#f7f7f7;
+text-align:center;
 }
-h1{ color:#8B4513; }
+
+h1{
+color:#8B4513;
+}
+
 .grid{
-  display:grid;
-  grid-template-columns: repeat(5, 56px);
-  gap:8px;
-  justify-content:center;
-  margin:20px auto;
-  max-width:340px;
+display:grid;
+grid-template-columns: repeat(10, 50px);
+gap:8px;
+justify-content:center;
+margin:20px;
 }
+
 .number{
-  padding:12px 0;
-  background:#2ecc71;
-  color:white;
-  cursor:pointer;
-  border-radius:8px;
-  font-weight:bold;
+padding:10px;
+background:#2ecc71;
+color:white;
+cursor:pointer;
+border-radius:6px;
 }
-.number.selected{ background:#f39c12; }
+
+.number.selected{
+background:#f39c12;
+}
+
 .number.sold{
-  background:#e74c3c;
-  cursor:not-allowed;
+background:#e74c3c;
+cursor:not-allowed;
 }
+
 form{
-  margin-top:20px;
-  max-width:400px;
-  margin-left:auto;
-  margin-right:auto;
+margin-top:20px;
 }
-input, select, textarea{
-  width:100%;
-  padding:12px;
-  margin-bottom:12px;
-  border:1px solid #ccc;
-  border-radius:8px;
-  box-sizing:border-box;
-}
+
 button{
-  padding:12px 20px;
-  font-size:16px;
-  background:#8B4513;
-  color:white;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
+padding:10px 20px;
+font-size:16px;
+background:#8B4513;
+color:white;
+border:none;
+border-radius:5px;
+cursor:pointer;
 }
-button:hover{ opacity:.95; }
-#selected, #pix{ max-width:600px; margin:0 auto; }
-.pix-box{
-  background:#fff;
-  border:1px solid #ddd;
-  border-radius:10px;
-  padding:15px;
-  margin-top:16px;
-  text-align:left;
-  word-break:break-all;
-}
-.copy-area{
-  width:100%;
-  min-height:120px;
-  resize:vertical;
-}
-.small{
-  color:#666;
-  font-size:14px;
-}
+
 </style>
+
 </head>
+
 <body>
 
 <h1>🍫 Rifa Cesta de Páscoa</h1>
-<p>Escolha seus números — <b>R$ 10,00</b> cada</p>
+
+<p>Escolha seus números - R$10 cada</p>
 
 <div class="grid" id="numbers"></div>
 
-<h2>Números escolhidos</h2>
-<p id="selected">Nenhum número selecionado.</p>
+<h2>Números escolhidos:</h2>
+
+<p id="selected"></p>
 
 <h2>Seus dados</h2>
 
 <form id="form">
-  <input id="nome" required placeholder="Nome completo">
-  <input id="telefone" required placeholder="Telefone">
-  <input id="endereco" required placeholder="Endereço">
-  
-  <select id="cidade" required>
-    <option value="">Selecione sua cidade</option>
-    <option>Recife</option>
-    <option>Olinda</option>
-    <option>Paulista</option>
-    <option>Jaboatão dos Guararapes</option>
-  </select>
 
-  <button type="submit">Gerar Pix copia e cola</button>
+<input required placeholder="Nome"><br><br>
+
+<input required placeholder="Telefone"><br><br>
+
+<input required placeholder="Endereço"><br><br>
+
+<select id="cidade" required>
+
+<option value="">Selecione sua cidade</option>
+
+<option>Recife</option>
+<option>Olinda</option>
+<option>Paulista</option>
+<option>Jaboatão dos Guararapes</option>
+
+</select>
+
+<br><br>
+
+<button type="submit">Gerar pagamento Pix</button>
+
 </form>
 
 <div id="pix"></div>
 
 <script>
-const PIX_KEY = "gabi.santana.s04@gmail.com";
-const PIX_NAME = "GABRIELA SANTANA DOS SANTOS";
-const PIX_CITY = "OLINDA";
-const ITEM_PRICE = 10.00;
 
-const grid = document.getElementById("numbers");
-const selectedDisplay = document.getElementById("selected");
+const grid = document.getElementById("numbers")
 
-let selected = [];
-let sold = JSON.parse(localStorage.getItem("soldNumbers")) || [];
+const selectedDisplay = document.getElementById("selected")
 
-function formatNumber(n){
-  return String(n).padStart(2, "0");
+let selected = []
+
+let sold = JSON.parse(localStorage.getItem("soldNumbers")) || []
+
+for(let i=1;i<=100;i++){
+
+let div=document.createElement("div")
+
+div.className="number"
+
+div.innerText=i
+
+if(sold.includes(i)){
+div.classList.add("sold")
 }
 
-function updateSelectedDisplay(){
-  selectedDisplay.innerText = selected.length
-    ? selected.map(n => formatNumber(n)).join(", ")
-    : "Nenhum número selecionado.";
+div.onclick=()=>{
+
+if(div.classList.contains("sold")) return
+
+if(selected.includes(i)){
+selected=selected.filter(n=>n!=i)
+div.classList.remove("selected")
+}else{
+selected.push(i)
+div.classList.add("selected")
 }
 
-for(let i=1; i<=100; i++){
-  let div = document.createElement("div");
-  div.className = "number";
-  div.innerText = formatNumber(i);
+selectedDisplay.innerText=selected.join(", ")
 
-  if(sold.includes(i)) div.classList.add("sold");
-
-  div.onclick = () => {
-    if(div.classList.contains("sold")) return;
-
-    if(selected.includes(i)){
-      selected = selected.filter(n => n !== i);
-      div.classList.remove("selected");
-    } else {
-      selected.push(i);
-      div.classList.add("selected");
-    }
-
-    selected.sort((a,b) => a-b);
-    updateSelectedDisplay();
-  };
-
-  grid.appendChild(div);
 }
 
-function onlyDigits(str){
-  return (str || "").replace(/\D/g, "");
+grid.appendChild(div)
+
 }
 
-function crc16(str) {
-  let crc = 0xFFFF;
-  for (let c = 0; c < str.length; c++) {
-    crc ^= str.charCodeAt(c) << 8;
-    for (let i = 0; i < 8; i++) {
-      if (crc & 0x8000) {
-        crc = (crc << 1) ^ 0x1021;
-      } else {
-        crc = crc << 1;
-      }
-      crc &= 0xFFFF;
-    }
-  }
-  return crc.toString(16).toUpperCase().padStart(4, '0');
+document.getElementById("form").onsubmit=function(e){
+
+e.preventDefault()
+
+let cidade=document.getElementById("cidade").value
+
+if(cidade===""){
+alert("Selecione uma cidade válida.")
+return
 }
 
-function emv(id, value){
-  return id + String(value.length).padStart(2, "0") + value;
+if(selected.length===0){
+alert("Escolha pelo menos um número.")
+return
 }
 
-function buildPixPayload({pixKey, description, merchantName, merchantCity, amount, txid}) {
-  const gui = emv("00", "br.gov.bcb.pix");
-  const key = emv("01", pixKey);
-  const desc = description ? emv("02", description.slice(0, 72)) : "";
-  const merchantAccountInfo = emv("26", gui + key + desc);
+let total=selected.length*10
 
-  const payloadFormat = emv("00", "01");
-  const merchantCategoryCode = emv("52", "0000");
-  const transactionCurrency = emv("53", "986");
-  const transactionAmount = amount ? emv("54", Number(amount).toFixed(2)) : "";
-  const countryCode = emv("58", "BR");
-  const merchantNameField = emv("59", merchantName.slice(0, 25));
-  const merchantCityField = emv("60", merchantCity.slice(0, 15));
-  const additionalDataField = emv("62", emv("05", txid.slice(0, 25)));
+document.getElementById("pix").innerHTML=
 
-  const payloadSemCRC =
-    payloadFormat +
-    merchantAccountInfo +
-    merchantCategoryCode +
-    transactionCurrency +
-    transactionAmount +
-    countryCode +
-    merchantNameField +
-    merchantCityField +
-    additionalDataField +
-    "6304";
+`
+<h2>Pagamento Pix</h2>
 
-  const crc = crc16(payloadSemCRC);
-  return payloadSemCRC + crc;
+<p>Valor: R$ ${total}</p>
+
+<p>Chave Pix:</p>
+
+<b>gabi.santana.s04@gmail.com</b>
+
+<p>Depois de pagar envie o comprovante:</p>
+
+<a href="https://wa.me/5581988451455?text=Olá!%20Acabei%20de%20comprar%20um%20número%20da%20rifa%20Cesta%20de%20Páscoa.%20Segue%20meu%20comprovante." target="_blank">
+
+<button>Enviar comprovante pelo WhatsApp</button>
+
+</a>
+
+<p>Números reservados: ${selected.join(", ")}</p>
+
+`
+
+sold=[...sold,...selected]
+
+localStorage.setItem("soldNumbers",JSON.stringify(sold))
+
 }
 
-document.getElementById("form").onsubmit = function(e){
-  e.preventDefault();
-
-  const nome = document.getElementById("nome").value.trim();
-  const telefone = document.getElementById("telefone").value.trim();
-  const endereco = document.getElementById("endereco").value.trim();
-  const cidade = document.getElementById("cidade").value;
-
-  if(!cidade){
-    alert("Selecione uma cidade válida.");
-    return;
-  }
-
-  if(selected.length === 0){
-    alert("Escolha pelo menos um número.");
-    return;
-  }
-
-  const total = selected.length * ITEM_PRICE;
-  const numeros = selected.map(n => formatNumber(n)).join(",");
-  const descricao = `Rifa Cesta de Pascoa Nrs ${numeros}`.slice(0, 72);
-  const txid = ("RIFA" + Date.now()).slice(0, 25);
-
-  const pixCode = buildPixPayload({
-    pixKey: PIX_KEY,
-    description: descricao,
-    merchantName: PIX_NAME,
-    merchantCity: PIX_CITY,
-    amount: total,
-    txid: txid
-  });
-
-  document.getElementById("pix").innerHTML = `
-    <div class="pix-box">
-      <h2>Pagamento Pix</h2>
-      <p><b>Comprador:</b> ${nome}</p>
-      <p><b>Telefone:</b> ${telefone}</p>
-      <p><b>Endereço:</b> ${endereco}</p>
-      <p><b>Cidade:</b> ${cidade}</p>
-      <p><b>Números:</b> ${selected.map(n => formatNumber(n)).join(", ")}</p>
-      <p><b>Valor total:</b> R$ ${total.toFixed(2).replace(".", ",")}</p>
-      <p><b>Pix copia e cola:</b></p>
-      <textarea id="pixCode" class="copy-area" readonly>${pixCode}</textarea>
-      <br>
-      <button type="button" onclick="copyPix()">Copiar código Pix</button>
-      <p class="small">Depois de pagar, envie o comprovante para confirmação.</p>
-    </div>
-  `;
-      <br><br>
-
-      <a href="https://wa.me/5581988451455" target="_blank">
-      <button>Enviar comprovante pelo WhatsApp</button>
-      </a>
-
-  sold = [...new Set([...sold, ...selected])];
-  localStorage.setItem("soldNumbers", JSON.stringify(sold));
-
-  document.querySelectorAll(".number.selected").forEach(el => {
-    el.classList.remove("selected");
-    el.classList.add("sold");
-  });
-
-  selected = [];
-  updateSelectedDisplay();
-};
-
-function copyPix(){
-  const area = document.getElementById("pixCode");
-  area.select();
-  area.setSelectionRange(0, 99999);
-  document.execCommand("copy");
-  alert("Código Pix copiado com sucesso.");
-}
 </script>
 
 </body>
-</html>
 
+</html>
